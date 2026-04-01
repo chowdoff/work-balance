@@ -52,6 +52,7 @@ export function WorkYearClient({ workYears }: { workYears: WorkYear[] }) {
     } else {
       await createWorkYear(formData);
     }
+    setEditingId(null);
     setDialogOpen(false);
   }
 

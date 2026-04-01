@@ -77,6 +77,7 @@ export function LeaveClient({
       } else {
         await createLeave(formData);
       }
+      setEditingId(null);
       setDialogOpen(false);
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : String(e));

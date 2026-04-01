@@ -70,6 +70,7 @@ export function OvertimeClient({
     } else {
       await createOvertime(formData);
     }
+    setEditingId(null);
     setDialogOpen(false);
   }
 
