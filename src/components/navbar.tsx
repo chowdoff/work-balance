@@ -82,7 +82,14 @@ export function Navbar({
           <span className="hidden sm:inline text-sm text-muted-foreground">
             {userName}
           </span>
-          <Button variant="outline" size="sm" onClick={() => signOut()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              await signOut({ redirect: false });
+              window.location.href = "/login";
+            }}
+          >
             退出
           </Button>
           <Sheet open={open} onOpenChange={setOpen}>
