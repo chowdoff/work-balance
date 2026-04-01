@@ -169,6 +169,7 @@ export function OrganizationClient({
                 <div className="space-y-2">
                   <Label htmlFor="dept-parentId">上级部门</Label>
                   <DepartmentTreeSelect
+                    key={editingDept?.id ?? "new"}
                     tree={tree}
                     name="parentId"
                     allowEmpty
@@ -309,6 +310,7 @@ export function OrganizationClient({
                 <div className="space-y-2">
                   <Label htmlFor="user-departmentId">所属部门</Label>
                   <DepartmentTreeSelect
+                    key={editingUser?.id ?? "new-user"}
                     tree={tree}
                     name="departmentId"
                     allowEmpty

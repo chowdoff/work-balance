@@ -30,11 +30,14 @@ export function DepartmentTreeSelect({
   allowEmpty?: boolean;
   className?: string;
 }) {
+  const selectProps = onChange !== undefined
+    ? { value: value ?? "", onChange: (e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value) }
+    : { defaultValue: value ?? "" };
+
   return (
     <select
       name={name}
-      value={value}
-      onChange={(e) => onChange?.(e.target.value)}
+      {...selectProps}
       className={`flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm ${className ?? ""}`}
     >
       {allowEmpty && <option value="">全部部门</option>}
