@@ -11,5 +11,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://attendance:attendance@db:5432/attendance"
+      NEXTAUTH_SECRET: "change-this-in-production"
+      NEXTAUTH_URL: "http://localhost:3000"
+    depends_on:
+      - db
+
 volumes:
   pgdata:
