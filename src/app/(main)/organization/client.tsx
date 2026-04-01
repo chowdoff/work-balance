@@ -102,6 +102,7 @@ export function OrganizationClient({
     } else {
       await createDepartment(formData);
     }
+    setEditingDeptId(null);
     setDeptDialogOpen(false);
   }
 
@@ -120,6 +121,7 @@ export function OrganizationClient({
     } else {
       await createUser(formData);
     }
+    setEditingUserId(null);
     setUserDialogOpen(false);
   }
 
@@ -156,7 +158,7 @@ export function OrganizationClient({
                   {editingDeptId ? "编辑部门" : "新建部门"}
                 </DialogTitle>
               </DialogHeader>
-              <form action={handleDeptSubmit} className="space-y-4">
+              <form key={editingDeptId ?? "new"} action={handleDeptSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="dept-name">部门名称</Label>
                   <Input
@@ -266,7 +268,7 @@ export function OrganizationClient({
                   {editingUserId ? "编辑员工" : "新增员工"}
                 </DialogTitle>
               </DialogHeader>
-              <form action={handleUserSubmit} className="space-y-4">
+              <form key={editingUserId ?? "new-user"} action={handleUserSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="user-name">姓名</Label>
                   <Input
