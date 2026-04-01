@@ -104,7 +104,7 @@ export async function updateUser(id: string, formData: FormData) {
   const currentWorkYear = await prisma.workYear.findFirst({
     where: { isCurrent: true },
   });
-  if (currentWorkYear) {
+  if (currentWorkYear && annualLeave > 0) {
     const { setAnnualLeaveTotal } = await import("@/lib/balance");
     await setAnnualLeaveTotal(id, currentWorkYear.id, annualLeave);
   }

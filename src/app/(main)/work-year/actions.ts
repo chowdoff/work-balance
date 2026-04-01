@@ -73,10 +73,15 @@ export async function deleteWorkYear(id: string) {
   const workYear = await prisma.workYear.findUnique({ where: { id } });
   if (workYear?.isCurrent) throw new Error("不能删除当前工作年度");
 
-  const hasRecords = await prisma.overtimeRecord.findFirst({
+  const hasOvertimeRecords = await prisma.overtimeRecord.findFirst({
     where: { workYearId: id },
   });
-  if (hasRecords) throw new Error("该年度下存在记录，无法删除");
+  if (hasOvertimeRecords) throw new Error("该年度下存在记录，无法删除");
+
+  const hasLeaveRecords = await prisma.leaveRecord.findFirst({
+    where: { workYearId: id },
+  });
+  if (hasLeaveRecords) throw new Error("该年度下存在记录，无法删除");
 
   await prisma.workYear.delete({ where: { id } });
   revalidatePath("/work-year");
