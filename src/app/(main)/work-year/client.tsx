@@ -82,7 +82,7 @@ export function WorkYearClient({ workYears }: { workYears: WorkYear[] }) {
             <DialogHeader>
               <DialogTitle>{editingId ? "编辑年度" : "新建年度"}</DialogTitle>
             </DialogHeader>
-            <form action={handleSubmit} className="space-y-4">
+            <form key={editingId ?? "new"} action={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">名称</Label>
                 <Input

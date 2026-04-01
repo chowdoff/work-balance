@@ -100,7 +100,7 @@ export function OvertimeClient({
               <DialogHeader>
                 <DialogTitle>{editingId ? "编辑加班记录" : "新增加班记录"}</DialogTitle>
               </DialogHeader>
-              <form action={handleSubmit} className="space-y-4">
+              <form key={editingId ?? "new"} action={handleSubmit} className="space-y-4">
                 <input type="hidden" name="workYearId" value={currentWorkYearId} />
                 {!editingId && (
                   <div className="space-y-2">

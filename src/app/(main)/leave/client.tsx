@@ -110,7 +110,7 @@ export function LeaveClient({
               <DialogHeader>
                 <DialogTitle>{editingId ? "编辑请假记录" : "新增请假记录"}</DialogTitle>
               </DialogHeader>
-              <form action={handleSubmit} className="space-y-4">
+              <form key={editingId ?? "new"} action={handleSubmit} className="space-y-4">
                 <input type="hidden" name="workYearId" value={currentWorkYearId} />
                 {!editingId && (
                   <>
