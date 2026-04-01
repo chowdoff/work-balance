@@ -24,6 +24,10 @@ async function main() {
   });
 
   const currentYear = new Date().getFullYear();
+  const workYearName = process.env.SEED_WORK_YEAR_NAME ?? `${currentYear}年度`;
+  const workYearStart = process.env.SEED_WORK_YEAR_START ?? `${currentYear}-01-01`;
+  const workYearEnd = process.env.SEED_WORK_YEAR_END ?? `${currentYear}-12-31`;
+
   const existingWorkYear = await prisma.workYear.findFirst({
     where: { isCurrent: true },
   });
@@ -31,9 +35,9 @@ async function main() {
   if (!existingWorkYear) {
     await prisma.workYear.create({
       data: {
-        name: `${currentYear}年度`,
-        startDate: new Date(`${currentYear}-01-01`),
-        endDate: new Date(`${currentYear}-12-31`),
+        name: workYearName,
+        startDate: new Date(workYearStart),
+        endDate: new Date(workYearEnd),
         isCurrent: true,
       },
     });
