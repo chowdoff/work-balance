@@ -23,7 +23,7 @@ export default async function OrganizationPage() {
     where: { isCurrent: true },
   });
 
-  let annualLeaveMap: Record<string, number> = {};
+  const annualLeaveMap: Record<string, number> = {};
   if (currentWorkYear) {
     const balances = await prisma.leaveBalance.findMany({
       where: { workYearId: currentWorkYear.id, type: LeaveType.ANNUAL },

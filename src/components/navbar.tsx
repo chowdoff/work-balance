@@ -25,24 +25,24 @@ const navItems: NavItem[] = [
   { label: "设置", href: "/settings", roles: ["admin", "manager", "employee"] },
 ];
 
-export function Navbar({
-  userName,
-  role,
+function NavLinks({
+  items,
+  pathname,
+  mobile,
+  onClose,
 }: {
-  userName: string;
-  role: UserRole;
+  items: NavItem[];
+  pathname: string;
+  mobile?: boolean;
+  onClose?: () => void;
 }) {
-  const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const visibleItems = navItems.filter((item) => item.roles.includes(role));
-
-  const NavLinks = ({ mobile }: { mobile?: boolean }) => (
+  return (
     <>
-      {visibleItems.map((item) => (
+      {items.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          onClick={() => mobile && setOpen(false)}
+          onClick={() => mobile && onClose?.()}
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary",
             mobile ? "block py-2" : "",
@@ -56,6 +56,18 @@ export function Navbar({
       ))}
     </>
   );
+}
+
+export function Navbar({
+  userName,
+  role,
+}: {
+  userName: string;
+  role: UserRole;
+}) {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const visibleItems = navItems.filter((item) => item.roles.includes(role));
 
   return (
     <header className="border-b bg-white">
@@ -63,7 +75,7 @@ export function Navbar({
         <div className="flex items-center gap-6">
           <span className="text-lg font-bold">考勤系统</span>
           <nav className="hidden md:flex items-center gap-4">
-            <NavLinks />
+            <NavLinks items={visibleItems} pathname={pathname} />
           </nav>
         </div>
         <div className="flex items-center gap-4">
@@ -83,7 +95,7 @@ export function Navbar({
             <SheetContent side="top" className="pt-10">
               <SheetTitle className="sr-only">导航菜单</SheetTitle>
               <nav className="flex flex-col gap-1">
-                <NavLinks mobile />
+                <NavLinks items={visibleItems} pathname={pathname} mobile onClose={() => setOpen(false)} />
               </nav>
             </SheetContent>
           </Sheet>
