@@ -6,14 +6,18 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const hashedPassword = await bcrypt.hash("admin123", 12);
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@company.com";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "admin123";
+  const adminName = process.env.SEED_ADMIN_NAME ?? "系统管理员";
+
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
   await prisma.user.upsert({
-    where: { email: "admin@company.com" },
+    where: { email: adminEmail },
     update: {},
     create: {
-      name: "系统管理员",
-      email: "admin@company.com",
+      name: adminName,
+      email: adminEmail,
       password: hashedPassword,
       isAdmin: true,
     },
