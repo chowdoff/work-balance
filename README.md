@@ -9,7 +9,7 @@
 - **请假管理** — 调休假/年假申请与扣减
 - **统计报表** — 按部门、年度汇总统计
 - **组织管理** — 多级部门树 + 员工管理
-- **工作年度** — 年度周期管理，支持跨年结转
+- **工作年度** — 年度周期管理
 - **个人设置** — 修改密码
 
 ## 技术栈
@@ -23,7 +23,7 @@
 | UI | Tailwind CSS 4 + shadcn (Base UI) |
 | 部署 | Docker + docker-compose |
 
-## 快速开始
+## 开发部署
 
 ### 前置条件
 
@@ -73,13 +73,33 @@ npm run dev
 
 > 局域网内其他设备访问：`npm run dev -- --hostname 0.0.0.0`
 
-### Docker 一键部署
+## 生产部署
+
+### Docker Compose 部署
+
+1. 修改 `docker-compose.yml` 中的环境变量：
+
+```yaml
+environment:
+  DATABASE_URL: "postgresql://user:password@db:5432/dbname"
+  NEXTAUTH_SECRET: "使用 openssl rand -base64 32 生成"
+```
+
+2. 启动服务：
 
 ```bash
 docker-compose up -d
 ```
 
 将同时启动 PostgreSQL 和应用，访问 http://localhost:3000。
+
+> Dockerfile 已在启动时自动执行 `prisma migrate deploy`，无需手动迁移。
+
+3. 首次部署需手动执行种子数据（创建管理员账号和初始年度）：
+
+```bash
+docker-compose exec app npx prisma db seed
+```
 
 ## 项目结构
 
