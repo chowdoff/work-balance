@@ -77,13 +77,7 @@ npm run dev
 
 ### Docker Compose 部署
 
-1. 修改 `docker-compose.yml` 中的环境变量：
-
-```yaml
-environment:
-  DATABASE_URL: "postgresql://user:password@db:5432/dbname"
-  NEXTAUTH_SECRET: "使用 openssl rand -base64 32 生成"
-```
+1. 修改 `docker-compose.yml` 中 app 服务的 `NEXTAUTH_SECRET`（使用 `openssl rand -base64 32` 生成安全密钥），按需修改数据库凭据。
 
 2. 构建并启动服务：
 
