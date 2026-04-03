@@ -120,9 +120,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: attendance
-      POSTGRES_PASSWORD: attendance
-      POSTGRES_DB: attendance
+      POSTGRES_USER: work-balance
+      POSTGRES_PASSWORD: work-balance
+      POSTGRES_DB: work-balance
     ports:
       - "5432:5432"
     volumes:
@@ -135,7 +135,7 @@ volumes:
 - [ ] **步骤 6：创建 .env**
 
 ```env
-DATABASE_URL="postgresql://attendance:attendance@localhost:5432/attendance"
+DATABASE_URL="postgresql://work-balance:work-balance@localhost:5432/work-balance"
 NEXTAUTH_SECRET="dev-secret-change-in-production"
 NEXTAUTH_URL="http://localhost:3000"
 ```
@@ -3325,9 +3325,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: attendance
-      POSTGRES_PASSWORD: attendance
-      POSTGRES_DB: attendance
+      POSTGRES_USER: work-balance
+      POSTGRES_PASSWORD: work-balance
+      POSTGRES_DB: work-balance
     ports:
       - "5432:5432"
     volumes:
@@ -3338,7 +3338,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://attendance:attendance@db:5432/attendance"
+      DATABASE_URL: "postgresql://work-balance:work-balance@db:5432/work-balance"
       NEXTAUTH_SECRET: "change-this-in-production"
       NEXTAUTH_URL: "http://localhost:3000"
     depends_on:
