@@ -1,5 +1,7 @@
+# Worktrees
 .worktrees/
 
+# Prisma generated
 /src/generated/prisma
 
 # Dependencies
@@ -13,4 +15,23 @@ node_modules/
 # Build outputs
 .next/
 out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug
+npm-debug.log*
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Misc
+todo
 

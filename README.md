@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Work Balance - 考勤管理系统
 
-## Getting Started
+员工加班与调休管理系统，支持多级部门、工作年度、加班/请假记录与余额自动结算。
 
-First, run the development server:
+## 功能
+
+- **仪表盘** — 个人加班/调休余额总览
+- **加班管理** — 记录加班天数，自动累计调休额度
+- **请假管理** — 调休假/年假申请与扣减
+- **统计报表** — 按部门、年度汇总统计
+- **组织管理** — 多级部门树 + 员工管理
+- **工作年度** — 年度周期管理，支持跨年结转
+- **个人设置** — 修改密码
+
+## 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| 框架 | Next.js 16 (App Router) + React 19 |
+| 语言 | TypeScript 5 |
+| 数据库 | PostgreSQL 16 + Prisma 7 |
+| 认证 | NextAuth v5 (Credentials) |
+| UI | Tailwind CSS 4 + shadcn (Base UI) |
+| 部署 | Docker + docker-compose |
+
+## 快速开始
+
+### 前置条件
+
+- Node.js >= 20
+- PostgreSQL 16（或 Docker）
+
+### 1. 克隆并安装依赖
+
+```bash
+git clone <repo-url>
+cd work-balance
+npm install
+```
+
+### 2. 配置环境变量
+
+```bash
+cp .env.example .env
+# 编辑 .env，按需修改数据库连接和管理员账号
+```
+
+### 3. 启动数据库
+
+使用 Docker（推荐）：
+
+```bash
+docker-compose up -d db
+```
+
+或连接已有的 PostgreSQL 实例，确保 `.env` 中的 `DATABASE_URL` 正确。
+
+### 4. 初始化数据库
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+npx prisma db seed
+```
+
+### 5. 启动开发服务器
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+访问 http://localhost:3000，使用 `.env` 中配置的管理员账号登录。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> 局域网内其他设备访问：`npm run dev -- --hostname 0.0.0.0`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Docker 一键部署
 
-## Learn More
+```bash
+docker-compose up -d
+```
 
-To learn more about Next.js, take a look at the following resources:
+将同时启动 PostgreSQL 和应用，访问 http://localhost:3000。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 项目结构
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/
+│   ├── (auth)/login/       # 登录页
+│   ├── (main)/             # 主应用（需认证）
+│   │   ├── dashboard/      # 仪表盘
+│   │   ├── overtime/       # 加班管理
+│   │   ├── leave/          # 请假管理
+│   │   ├── statistics/     # 统计报表
+│   │   ├── organization/   # 组织管理
+│   │   ├── work-year/      # 工作年度
+│   │   └── settings/       # 个人设置
+│   └── api/auth/           # NextAuth API
+├── components/             # 共享组件
+├── lib/                    # 工具库
+└── proxy.ts                # 路由代理（认证拦截）
+```
 
-## Deploy on Vercel
+## 环境变量说明
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| 变量 | 必填 | 说明 |
+|------|------|------|
+| `DATABASE_URL` | 是 | PostgreSQL 连接字符串 |
+| `NEXTAUTH_SECRET` | 是 | NextAuth 加密密钥 |
+| `SEED_ADMIN_EMAIL` | 否 | 种子管理员邮箱（默认 admin@company.com） |
+| `SEED_ADMIN_PASSWORD` | 否 | 种子管理员密码（默认 admin123） |
+| `SEED_ADMIN_NAME` | 否 | 种子管理员名称（默认 系统管理员） |
+| `SEED_WORK_YEAR_NAME` | 否 | 初始年度名称（默认 {当前年}年度） |
+| `SEED_WORK_YEAR_START` | 否 | 初始年度开始日期 |
+| `SEED_WORK_YEAR_END` | 否 | 初始年度结束日期 |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT
