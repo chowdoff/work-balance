@@ -21,7 +21,7 @@
 | 数据库 | PostgreSQL 16 + Prisma 7 |
 | 认证 | NextAuth v5 (Credentials) |
 | UI | Tailwind CSS 4 + shadcn (Base UI) |
-| 部署 | Docker + docker-compose |
+| 部署 | Docker + docker compose |
 
 ## 开发部署
 
@@ -50,7 +50,7 @@ cp .env.example .env
 使用 Docker（推荐）：
 
 ```bash
-docker-compose up -d db
+docker compose up -d db
 ```
 
 或连接已有的 PostgreSQL 实例，确保 `.env` 中的 `DATABASE_URL` 正确。
@@ -77,7 +77,7 @@ npm run dev
 
 ### Docker Compose 部署
 
-1. 修改 `docker-compose.yml` 中的环境变量：
+1. 修改 `docker compose.yml` 中的环境变量：
 
 ```yaml
 environment:
@@ -88,7 +88,7 @@ environment:
 2. 启动服务：
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 将同时启动 PostgreSQL 和应用，访问 http://localhost:3000。
@@ -98,7 +98,7 @@ docker-compose up -d
 3. 首次部署需手动执行种子数据（创建管理员账号和初始年度）：
 
 ```bash
-docker-compose exec app npx prisma db seed
+docker compose exec app npx prisma db seed
 ```
 
 ## 项目结构

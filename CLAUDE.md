@@ -10,7 +10,7 @@
 - **数据库**: PostgreSQL 16 + Prisma 7 (使用 `@prisma/adapter-pg`)
 - **认证**: NextAuth v5 (beta.30)，Credentials 模式
 - **UI**: Tailwind CSS 4 + shadcn (Base UI) 组件
-- **部署**: Docker + docker-compose
+- **部署**: Docker + docker compose
 
 ## 项目结构
 
@@ -120,6 +120,6 @@ npm run lint                        # ESLint 检查
 npx prisma migrate dev --name xxx   # 创建数据库迁移
 npx prisma db seed                  # 执行种子数据
 npx prisma studio                   # 打开数据库管理界面
-docker-compose up -d db             # 仅启动数据库
-docker-compose up -d                # 启动完整应用（数据库+应用）
+docker compose up -d db             # 仅启动数据库
+docker compose up -d                # 启动完整应用（数据库+应用）
 ```
