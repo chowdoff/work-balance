@@ -77,7 +77,7 @@ npm run dev
 
 ### Docker Compose 部署
 
-1. 修改 `docker compose.yml` 中的环境变量：
+1. 修改 `docker-compose.yml` 中的环境变量：
 
 ```yaml
 environment:
@@ -85,21 +85,21 @@ environment:
   NEXTAUTH_SECRET: "使用 openssl rand -base64 32 生成"
 ```
 
-2. 启动服务：
+2. 构建并启动服务：
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-将同时启动 PostgreSQL 和应用，访问 http://localhost:3000。
-
-> Dockerfile 已在启动时自动执行 `prisma migrate deploy`，无需手动迁移。
+app 会等待 PostgreSQL 健康检查通过后再启动，并自动执行 `prisma migrate deploy`。
 
 3. 首次部署需手动执行种子数据（创建管理员账号和初始年度）：
 
 ```bash
 docker compose exec app npx prisma db seed
 ```
+
+4. 访问 http://localhost:3000。
 
 ## 项目结构
 
