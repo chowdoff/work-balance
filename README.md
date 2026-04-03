@@ -27,7 +27,7 @@
 
 ### 前置条件
 
-- Node.js >= 20
+- Node.js >= 22
 - PostgreSQL 16（或 Docker）
 
 ### 1. 克隆并安装依赖
@@ -85,15 +85,9 @@ npm run dev
 docker compose up -d --build
 ```
 
-app 会等待 PostgreSQL 健康检查通过后再启动，并自动执行 `prisma migrate deploy`。
+app 会等待 PostgreSQL 健康检查通过后再启动，并自动执行数据库迁移和种子数据初始化（创建管理员账号和初始年度）。
 
-3. 首次部署需手动执行种子数据（创建管理员账号和初始年度）：
-
-```bash
-docker compose exec app npx prisma db seed
-```
-
-4. 访问 http://localhost:3000。
+3. 访问 http://localhost:3000，使用配置的管理员账号登录。
 
 ## 项目结构
 

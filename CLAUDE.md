@@ -121,5 +121,5 @@ npx prisma migrate dev --name xxx   # 创建数据库迁移
 npx prisma db seed                  # 执行种子数据
 npx prisma studio                   # 打开数据库管理界面
 docker compose up -d db             # 仅启动数据库
-docker compose up -d                # 启动完整应用（数据库+应用）
+docker compose up -d --build        # 构建并启动完整应用（自动 migrate + seed）
 ```
