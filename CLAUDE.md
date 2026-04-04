@@ -95,7 +95,7 @@ Dialog 内使用 `defaultValue` 的表单，需要：
 
 ```bash
 # 数据库连接
-DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
+DATABASE_URL="postgresql://work-balance:work-balance@db:5432/work-balance"
 
 # NextAuth
 NEXTAUTH_SECRET="生成一个安全的随机字符串"
@@ -120,6 +120,7 @@ npm run lint                        # ESLint 检查
 npx prisma migrate dev --name xxx   # 创建数据库迁移
 npx prisma db seed                  # 执行种子数据
 npx prisma studio                   # 打开数据库管理界面
-docker compose up -d db             # 仅启动数据库
+docker compose up -d db             # 仅启动数据库（开发环境）
 docker compose up -d --build        # 构建并启动完整应用（自动 migrate + seed）
+# 生产环境包含 Nginx Proxy Manager，管理面板：http://<IP>:81
 ```

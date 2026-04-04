@@ -5,10 +5,8 @@ services:
       POSTGRES_USER: work-balance
       POSTGRES_PASSWORD: work-balance
       POSTGRES_DB: work-balance
-    ports:
-      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U work-balance"]
       interval: 3s
@@ -17,8 +15,8 @@ services:
 
   app:
     build: .
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       DATABASE_URL: "postgresql://work-balance:work-balance@db:5432/work-balance"
       NEXTAUTH_SECRET: "change-this-in-production"
@@ -26,5 +24,17 @@ services:
       db:
         condition: service_healthy
 
-volumes:
-  pgdata:
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    environment:
+      TZ: "Asia/Shanghai"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    depends_on:
+      - app
+

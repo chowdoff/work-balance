@@ -87,7 +87,15 @@ docker compose up -d --build
 
 app 会等待 PostgreSQL 健康检查通过后再启动，并自动执行数据库迁移和种子数据初始化（创建管理员账号和初始年度）。
 
-3. 访问 http://localhost:3000，使用配置的管理员账号登录。
+3. 配置反向代理：访问 `http://<服务器IP>:81` 进入 Nginx Proxy Manager 管理面板，首次访问按提示创建管理员账号。
+
+4. 添加 Proxy Host：
+   - Domain Names: 填写你的域名
+   - Forward Hostname: `app`
+   - Forward Port: `3000`
+   - 在 SSL 标签页可申请 Let's Encrypt 证书
+
+5. 通过域名访问应用，使用配置的管理员账号登录。
 
 ## 项目结构
 
