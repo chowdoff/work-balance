@@ -69,13 +69,17 @@ export function OvertimeClient({
   const editing = editingId ? records.find((r) => r.id === editingId) ?? null : null;
 
   async function handleSubmit(formData: FormData) {
-    if (editingId) {
-      await updateOvertime(editingId, formData);
-    } else {
-      await createOvertime(formData);
+    try {
+      if (editingId) {
+        await updateOvertime(editingId, formData);
+      } else {
+        await createOvertime(formData);
+      }
+      setEditingId(null);
+      setDialogOpen(false);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : String(e));
     }
-    setEditingId(null);
-    setDialogOpen(false);
   }
 
   async function handleDelete(id: string) {
