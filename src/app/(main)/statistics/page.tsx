@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getUserRole, getManagedDepartmentIds } from "@/lib/auth-utils";
-import { getAccessibleDepartmentTree } from "@/lib/department-tree";
+import { getAccessibleDepartmentTree, getDepartmentPathMap } from "@/lib/department-tree";
 import { redirect } from "next/navigation";
 import { StatisticsClient } from "./client";
 import { LeaveType } from "@prisma/client";
@@ -38,6 +38,8 @@ export default async function StatisticsPage({
   } else if (accessibleDeptIds !== "all") {
     userWhere = { departmentId: { in: accessibleDeptIds } };
   }
+
+  const pathMap = await getDepartmentPathMap();
 
   const users = await prisma.user.findMany({
     where: userWhere,
@@ -80,7 +82,7 @@ export default async function StatisticsPage({
     return {
       id: u.id,
       name: u.name,
-      department: u.department?.name ?? "-",
+      department: (u.departmentId ? pathMap.get(u.departmentId) : null) ?? u.department?.name ?? "-",
       overtimeDays,
       compLeaveDays,
       compRemaining: Number(compBalance?.remaining ?? 0),

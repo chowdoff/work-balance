@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getUserRole } from "@/lib/auth-utils";
-import { getDepartmentTree } from "@/lib/department-tree";
+import { getDepartmentTree, getDepartmentPathMap } from "@/lib/department-tree";
 import { redirect } from "next/navigation";
 import { OrganizationClient } from "./client";
 import { LeaveType } from "@prisma/client";
@@ -18,6 +18,13 @@ export default async function OrganizationPage() {
     },
     orderBy: { name: "asc" },
   });
+
+  const pathMap = await getDepartmentPathMap();
+  for (const u of users) {
+    if (u.department && u.departmentId) {
+      u.department.name = pathMap.get(u.departmentId) ?? u.department.name;
+    }
+  }
 
   const currentWorkYear = await prisma.workYear.findFirst({
     where: { isCurrent: true },
