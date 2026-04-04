@@ -6,8 +6,11 @@ import { SessionProvider } from "@/components/session-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "考勤系统",
-  description: "公司内部加班、请假记录系统",
+  title: "Work Balance",
+  description: "员工加班与调休管理系统",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({

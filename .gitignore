@@ -39,6 +39,7 @@ tsconfig.tsbuildinfo
 pgdata/
 data/
 letsencrypt/
+docker-compose.override.yml
 
 # Misc
 todo

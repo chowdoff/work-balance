@@ -45,7 +45,20 @@ cp .env.example .env
 # 编辑 .env，按需修改数据库连接和管理员账号
 ```
 
-### 3. 启动数据库
+### 3. 创建开发覆盖文件
+
+```bash
+cat > docker-compose.override.yml << 'EOF'
+services:
+  db:
+    ports:
+      - "5432:5432"
+EOF
+```
+
+该文件已加入 .gitignore，不会提交到仓库。生产环境不需要此文件。
+
+### 4. 启动数据库
 
 使用 Docker（推荐）：
 
@@ -55,7 +68,7 @@ docker compose up -d db
 
 或连接已有的 PostgreSQL 实例，确保 `.env` 中的 `DATABASE_URL` 正确。
 
-### 4. 初始化数据库
+### 5. 初始化数据库
 
 ```bash
 npx prisma generate
@@ -63,7 +76,7 @@ npx prisma migrate deploy
 npx prisma db seed
 ```
 
-### 5. 启动开发服务器
+### 6. 启动开发服务器
 
 ```bash
 npm run dev
