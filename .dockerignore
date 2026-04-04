@@ -1,0 +1,8 @@
+node_modules
+.next
+pgdata
+data
+letsencrypt
+.git
+.env
+.env.local
