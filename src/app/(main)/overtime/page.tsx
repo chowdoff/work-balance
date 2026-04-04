@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getUserRole, getManagedDepartmentIds } from "@/lib/auth-utils";
-import { getAccessibleDepartmentTree } from "@/lib/department-tree";
+import { getAccessibleDepartmentTree, getDepartmentPathMap } from "@/lib/department-tree";
 import { OvertimeClient } from "./client";
 
 export default async function OvertimePage({
@@ -49,6 +49,8 @@ export default async function OvertimePage({
   });
   const filteredUserIds = filteredUsers.map((u) => u.id);
 
+  const pathMap = await getDepartmentPathMap();
+
   const records = await prisma.overtimeRecord.findMany({
     where: {
       workYearId: selectedWorkYearId,
@@ -56,11 +58,17 @@ export default async function OvertimePage({
     },
     include: {
       user: {
-        select: { name: true, department: { select: { name: true } } },
+        select: { name: true, departmentId: true, department: { select: { name: true } } },
       },
     },
     orderBy: { date: "desc" },
   });
+
+  for (const r of records) {
+    if (r.user.department && r.user.departmentId) {
+      r.user.department.name = pathMap.get(r.user.departmentId) ?? r.user.department.name;
+    }
+  }
 
   // Manageable users for the create dialog
   let manageableUsers: { id: string; name: string }[] = [];
