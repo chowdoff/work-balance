@@ -81,3 +81,24 @@ export async function getAccessibleDepartmentTree(
   const accessibleIds = new Set(await getManagedDepartmentIds(userId));
   return filterTree(tree, accessibleIds);
 }
+
+export async function getDepartmentPathMap(): Promise<Map<string, string>> {
+  const departments = await prisma.department.findMany({
+    select: { id: true, name: true, parentId: true },
+  });
+
+  const deptMap = new Map(departments.map((d) => [d.id, d]));
+  const pathMap = new Map<string, string>();
+
+  for (const dept of departments) {
+    const parts: string[] = [];
+    let current: (typeof departments)[number] | undefined = dept;
+    while (current) {
+      parts.unshift(current.name);
+      current = current.parentId ? deptMap.get(current.parentId) : undefined;
+    }
+    pathMap.set(dept.id, parts.join("/"));
+  }
+
+  return pathMap;
+}
