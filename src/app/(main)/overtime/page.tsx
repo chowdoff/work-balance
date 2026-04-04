@@ -44,6 +44,8 @@ export default async function OvertimePage() {
       currentWorkYearId={currentWorkYear.id}
       currentWorkYearName={currentWorkYear.name}
       manageableUsers={manageableUsers}
+      workYearStartDate={currentWorkYear.startDate.toISOString().slice(0, 10)}
+      workYearEndDate={currentWorkYear.endDate.toISOString().slice(0, 10)}
     />
   );
 }

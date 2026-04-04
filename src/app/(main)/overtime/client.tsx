@@ -38,6 +38,8 @@ type Props = {
   currentWorkYearId: string;
   currentWorkYearName: string;
   manageableUsers: { id: string; name: string }[];
+  workYearStartDate: string;
+  workYearEndDate: string;
 };
 
 export function OvertimeClient({
@@ -46,6 +48,8 @@ export function OvertimeClient({
   currentWorkYearId,
   currentWorkYearName,
   manageableUsers,
+  workYearStartDate,
+  workYearEndDate,
 }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -128,6 +132,8 @@ export function OvertimeClient({
                     name="date"
                     type="date"
                     defaultValue={editing?.date?.slice(0, 10) ?? ""}
+                    min={workYearStartDate}
+                    max={workYearEndDate}
                     required
                   />
                 </div>
