@@ -39,6 +39,8 @@ type WorkYear = {
   id: string;
   name: string;
   isCurrent: boolean;
+  startDate: string;
+  endDate: string;
 };
 
 type Props = {
@@ -46,8 +48,6 @@ type Props = {
   role: UserRole;
   selectedWorkYearId: string;
   manageableUsers: { id: string; name: string }[];
-  workYearStartDate: string;
-  workYearEndDate: string;
   tree: DepartmentNode[];
   workYears: WorkYear[];
   selectedDepartmentId: string;
@@ -58,8 +58,6 @@ export function OvertimeClient({
   role,
   selectedWorkYearId,
   manageableUsers,
-  workYearStartDate,
-  workYearEndDate,
   tree,
   workYears,
   selectedDepartmentId,
@@ -67,6 +65,7 @@ export function OvertimeClient({
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [formWorkYearId, setFormWorkYearId] = useState(selectedWorkYearId);
 
   const canManage = role !== "employee";
 
@@ -84,6 +83,7 @@ export function OvertimeClient({
 
   function openCreate() {
     setEditingId(null);
+    setFormWorkYearId(selectedWorkYearId);
     setDialogOpen(true);
   }
 
@@ -133,24 +133,44 @@ export function OvertimeClient({
                 <DialogTitle>{editingId ? "编辑加班记录" : "新增加班记录"}</DialogTitle>
               </DialogHeader>
               <form key={editingId ?? "new"} action={handleSubmit} className="space-y-4">
-                <input type="hidden" name="workYearId" value={selectedWorkYearId} />
-                {!editingId && (
-                  <div className="space-y-2">
-                    <Label htmlFor="userId">员工</Label>
-                    <select
-                      id="userId"
-                      name="userId"
-                      required
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                    >
-                      <option value="">请选择员工</option>
-                      {manageableUsers.map((u) => (
-                        <option key={u.id} value={u.id}>
-                          {u.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                {!editingId ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="workYearId">工作年度</Label>
+                      <select
+                        id="workYearId"
+                        name="workYearId"
+                        value={formWorkYearId}
+                        onChange={(e) => setFormWorkYearId(e.target.value)}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                      >
+                        {workYears.map((wy) => (
+                          <option key={wy.id} value={wy.id}>
+                            {wy.name}
+                            {wy.isCurrent ? " (当前)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="userId">员工</Label>
+                      <select
+                        id="userId"
+                        name="userId"
+                        required
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                      >
+                        <option value="">请选择员工</option>
+                        {manageableUsers.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <input type="hidden" name="workYearId" value={editing!.workYearId} />
                 )}
                 <div className="space-y-2">
                   <Label htmlFor="date">日期</Label>
@@ -159,8 +179,8 @@ export function OvertimeClient({
                     name="date"
                     type="date"
                     defaultValue={editing?.date?.slice(0, 10) ?? ""}
-                    min={workYearStartDate}
-                    max={workYearEndDate}
+                    min={workYears.find((w) => w.id === (editingId ? editing!.workYearId : formWorkYearId))?.startDate}
+                    max={workYears.find((w) => w.id === (editingId ? editing!.workYearId : formWorkYearId))?.endDate}
                     required
                   />
                 </div>
