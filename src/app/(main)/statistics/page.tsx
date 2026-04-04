@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getUserRole, getManagedDepartmentIds } from "@/lib/auth-utils";
-import { getDepartmentTree } from "@/lib/department-tree";
+import { getAccessibleDepartmentTree } from "@/lib/department-tree";
 import { redirect } from "next/navigation";
 import { StatisticsClient } from "./client";
 import { LeaveType } from "@prisma/client";
@@ -15,7 +15,7 @@ export default async function StatisticsPage({
   if (role === "employee") redirect("/dashboard");
 
   const params = await searchParams;
-  const tree = await getDepartmentTree();
+  const tree = await getAccessibleDepartmentTree(user.id, role);
   const workYears = await prisma.workYear.findMany({ orderBy: { startDate: "desc" } });
   const currentWorkYear = workYears.find((w) => w.isCurrent);
   const selectedWorkYearId = params.workYearId || currentWorkYear?.id;
