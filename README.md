@@ -77,7 +77,11 @@ npm run dev
 
 ### Docker Compose 部署
 
-1. 修改 `docker-compose.yml` 中 app 服务的 `NEXTAUTH_SECRET`（使用 `openssl rand -base64 32` 生成安全密钥），按需修改数据库凭据。
+1. 修改 `docker-compose.yml` 中 app 服务的环境变量：
+   - `NEXTAUTH_SECRET`：使用 `openssl rand -base64 32` 生成安全密钥
+   - `SEED_ADMIN_*`：管理员账号、密码、名称
+   - `SEED_WORK_YEAR_*`：初始工作年度名称、起止日期
+   - 按需修改 db 服务的数据库凭据（同步修改 `DATABASE_URL`）
 
 2. 构建并启动服务：
 
@@ -123,12 +127,12 @@ src/
 |------|------|------|
 | `DATABASE_URL` | 是 | PostgreSQL 连接字符串 |
 | `NEXTAUTH_SECRET` | 是 | NextAuth 加密密钥 |
-| `SEED_ADMIN_EMAIL` | 否 | 种子管理员邮箱（默认 admin@company.com） |
-| `SEED_ADMIN_PASSWORD` | 否 | 种子管理员密码（默认 admin123） |
-| `SEED_ADMIN_NAME` | 否 | 种子管理员名称（默认 系统管理员） |
-| `SEED_WORK_YEAR_NAME` | 否 | 初始年度名称（默认 {当前年}年度） |
-| `SEED_WORK_YEAR_START` | 否 | 初始年度开始日期 |
-| `SEED_WORK_YEAR_END` | 否 | 初始年度结束日期 |
+| `SEED_ADMIN_EMAIL` | 是 | 种子管理员邮箱 |
+| `SEED_ADMIN_PASSWORD` | 是 | 种子管理员密码 |
+| `SEED_ADMIN_NAME` | 是 | 种子管理员名称 |
+| `SEED_WORK_YEAR_NAME` | 是 | 初始年度名称 |
+| `SEED_WORK_YEAR_START` | 是 | 初始年度开始日期 |
+| `SEED_WORK_YEAR_END` | 是 | 初始年度结束日期 |
 
 ## License
 

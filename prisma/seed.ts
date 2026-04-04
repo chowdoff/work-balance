@@ -5,10 +5,18 @@ import bcrypt from "bcryptjs";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
 async function main() {
-  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@company.com";
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "admin123";
-  const adminName = process.env.SEED_ADMIN_NAME ?? "系统管理员";
+  const adminEmail = requireEnv("SEED_ADMIN_EMAIL");
+  const adminPassword = requireEnv("SEED_ADMIN_PASSWORD");
+  const adminName = requireEnv("SEED_ADMIN_NAME");
 
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
@@ -23,10 +31,9 @@ async function main() {
     },
   });
 
-  const currentYear = new Date().getFullYear();
-  const workYearName = process.env.SEED_WORK_YEAR_NAME ?? `${currentYear}年度`;
-  const workYearStart = process.env.SEED_WORK_YEAR_START ?? `${currentYear}-01-01`;
-  const workYearEnd = process.env.SEED_WORK_YEAR_END ?? `${currentYear}-12-31`;
+  const workYearName = requireEnv("SEED_WORK_YEAR_NAME");
+  const workYearStart = requireEnv("SEED_WORK_YEAR_START");
+  const workYearEnd = requireEnv("SEED_WORK_YEAR_END");
 
   const existingWorkYear = await prisma.workYear.findFirst({
     where: { isCurrent: true },
