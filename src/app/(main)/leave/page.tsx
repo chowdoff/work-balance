@@ -20,8 +20,6 @@ export default async function LeavePage({
     return <div className="text-center py-12 text-muted-foreground">暂未设置工作年度</div>;
   }
 
-  const selectedWorkYear = workYears.find((w) => w.id === selectedWorkYearId)!;
-
   // Department tree for filter (permission-filtered)
   const tree = role !== "employee" ? await getAccessibleDepartmentTree(user.id, role) : [];
 
@@ -80,10 +78,14 @@ export default async function LeavePage({
       role={role}
       selectedWorkYearId={selectedWorkYearId}
       manageableUsers={manageableUsers}
-      workYearStartDate={selectedWorkYear.startDate.toISOString().slice(0, 10)}
-      workYearEndDate={selectedWorkYear.endDate.toISOString().slice(0, 10)}
       tree={tree}
-      workYears={JSON.parse(JSON.stringify(workYears))}
+      workYears={workYears.map((w) => ({
+        id: w.id,
+        name: w.name,
+        isCurrent: w.isCurrent,
+        startDate: w.startDate.toISOString().slice(0, 10),
+        endDate: w.endDate.toISOString().slice(0, 10),
+      }))}
       selectedDepartmentId={params.departmentId ?? ""}
     />
   );
