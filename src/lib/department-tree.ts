@@ -64,9 +64,7 @@ function filterTree(
       result.push(node);
     } else {
       const filteredChildren = filterTree(node.children, accessibleIds);
-      if (filteredChildren.length > 0) {
-        result.push({ ...node, children: filteredChildren });
-      }
+      result.push(...filteredChildren);
     }
   }
   return result;
