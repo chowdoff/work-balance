@@ -21,6 +21,16 @@ export async function createOvertime(formData: FormData) {
     throw new Error("无权操作此员工");
   }
 
+  const workYear = await prisma.workYear.findUnique({ where: { id: workYearId } });
+  if (!workYear) throw new Error("工作年度不存在");
+
+  const dateObj = new Date(date);
+  if (dateObj < workYear.startDate || dateObj > workYear.endDate) {
+    const start = workYear.startDate.toISOString().slice(0, 10);
+    const end = workYear.endDate.toISOString().slice(0, 10);
+    throw new Error(`日期必须在工作年度范围内（${start} ~ ${end}）`);
+  }
+
   await prisma.overtimeRecord.create({
     data: { userId, workYearId, date: new Date(date), days, remark },
   });
@@ -43,9 +53,19 @@ export async function updateOvertime(id: string, formData: FormData) {
     throw new Error("无权操作");
   }
 
+  const workYear = await prisma.workYear.findUnique({ where: { id: record.workYearId } });
+  if (!workYear) throw new Error("工作年度不存在");
+
   const date = formData.get("date") as string;
   const days = parseFloat(formData.get("days") as string);
   const remark = (formData.get("remark") as string) || null;
+
+  const dateObj = new Date(date);
+  if (dateObj < workYear.startDate || dateObj > workYear.endDate) {
+    const start = workYear.startDate.toISOString().slice(0, 10);
+    const end = workYear.endDate.toISOString().slice(0, 10);
+    throw new Error(`日期必须在工作年度范围内（${start} ~ ${end}）`);
+  }
 
   await prisma.overtimeRecord.update({
     where: { id },
