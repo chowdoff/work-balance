@@ -53,3 +53,33 @@ export async function getDepartmentTree(): Promise<DepartmentNode[]> {
 
   return roots;
 }
+
+function filterTree(
+  nodes: DepartmentNode[],
+  accessibleIds: Set<string>
+): DepartmentNode[] {
+  const result: DepartmentNode[] = [];
+  for (const node of nodes) {
+    if (accessibleIds.has(node.id)) {
+      result.push(node);
+    } else {
+      const filteredChildren = filterTree(node.children, accessibleIds);
+      if (filteredChildren.length > 0) {
+        result.push({ ...node, children: filteredChildren });
+      }
+    }
+  }
+  return result;
+}
+
+export async function getAccessibleDepartmentTree(
+  userId: string,
+  role: string
+): Promise<DepartmentNode[]> {
+  const tree = await getDepartmentTree();
+  if (role === "admin") return tree;
+
+  const { getManagedDepartmentIds } = await import("@/lib/auth-utils");
+  const accessibleIds = new Set(await getManagedDepartmentIds(userId));
+  return filterTree(tree, accessibleIds);
+}
