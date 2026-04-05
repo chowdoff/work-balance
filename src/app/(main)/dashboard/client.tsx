@@ -1,0 +1,175 @@
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import type { DepartmentNode } from "@/lib/department-tree";
+import type { UserRole } from "@/lib/auth-utils";
+
+type ActivityItem = {
+  id: string;
+  date: string;
+  days: number;
+  type: "OVERTIME" | "COMPENSATORY" | "ANNUAL";
+  remark: string | null;
+};
+
+type PersonalData = {
+  compensatoryRemaining: number;
+  compensatoryTotal: number;
+  compensatoryUsed: number;
+  annualRemaining: number;
+  annualTotal: number;
+  annualUsed: number;
+  overtimeTotal: number;
+  workYearName: string;
+  workYearStart: string;
+  workYearEnd: string;
+  recentActivity: ActivityItem[];
+};
+
+export type DepartmentData = {
+  memberCount: number;
+  monthlyOvertimeDays: number;
+  monthlyLeaveDays: number;
+  avgCompensatoryRemaining: number;
+  monthlyTrend: { month: string; overtimeDays: number; leaveDays: number }[];
+  balanceRanking: { name: string; compensatory: number; annual: number }[];
+};
+
+export function DashboardClient({
+  role,
+  personalData,
+  departmentData,
+  tree,
+  selectedDepartmentId,
+  showDepartmentSection,
+}: {
+  role: UserRole;
+  personalData: PersonalData;
+  departmentData: DepartmentData | null;
+  tree: DepartmentNode[];
+  selectedDepartmentId: string;
+  showDepartmentSection: boolean;
+}) {
+  const today = new Date();
+  const endDate = new Date(personalData.workYearEnd);
+  const startDate = new Date(personalData.workYearStart);
+  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const remainingDays = Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+  const progress = totalDays > 0 ? Math.min(100, Math.max(0, ((totalDays - remainingDays) / totalDays) * 100)) : 0;
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">{personalData.workYearName}</h1>
+
+      {/* Personal balance cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              调休余额
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{personalData.compensatoryRemaining} 天</div>
+            <p className="text-sm text-muted-foreground mt-1">
+              总计 {personalData.compensatoryTotal} 天 / 已用 {personalData.compensatoryUsed} 天
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              年假余额
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{personalData.annualRemaining} 天</div>
+            <p className="text-sm text-muted-foreground mt-1">
+              总计 {personalData.annualTotal} 天 / 已用 {personalData.annualUsed} 天
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              累计加班
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{personalData.overtimeTotal} 天</div>
+            <p className="text-sm text-muted-foreground mt-1">
+              本年度加班总天数
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              年度倒计时
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{remainingDays} 天</div>
+            <div className="mt-2">
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                共 {totalDays} 天 / 已过 {totalDays - remainingDays} 天
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent activity */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-base">近期动态</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {personalData.recentActivity.length === 0 ? (
+            <p className="text-sm text-muted-foreground">暂无记录</p>
+          ) : (
+            <div className="space-y-3">
+              {personalData.recentActivity.map((item) => (
+                <div key={item.id} className="flex items-center gap-3 text-sm">
+                  <span className="text-muted-foreground w-24 shrink-0">{item.date}</span>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                      item.type === "OVERTIME"
+                        ? "bg-orange-100 text-orange-700"
+                        : item.type === "COMPENSATORY"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {item.type === "OVERTIME" ? "加班" : item.type === "COMPENSATORY" ? "调休" : "年假"}
+                  </span>
+                  <span className="font-medium">{item.days} 天</span>
+                  {item.remark && (
+                    <span className="text-muted-foreground truncate">{item.remark}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-4 mt-4 pt-3 border-t">
+            <Link href="/overtime" className="text-sm text-primary hover:underline">
+              查看加班记录
+            </Link>
+            <Link href="/leave" className="text-sm text-primary hover:underline">
+              查看请假记录
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Department section placeholder - Task 4 fills this in */}
+    </div>
+  );
+}
