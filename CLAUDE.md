@@ -50,6 +50,7 @@ src/
 ### 架构模式
 
 每个功能模块遵循三文件结构：
+
 - `page.tsx` — 服务端组件，获取数据并传递给客户端组件
 - `client.tsx` — 客户端组件，处理交互逻辑和 UI
 - `actions.ts` — Server Actions，处理数据变更，调用 `revalidatePath` 刷新页面
@@ -79,6 +80,7 @@ src/
 ### 认证与权限
 
 三种角色：`admin`（管理员）、`manager`（部门经理）、`employee`（普通员工）
+
 - admin: 可访问所有功能
 - manager: 可查看部门统计
 - employee: 仅管理自己的记录
@@ -86,6 +88,7 @@ src/
 ### 已知的 Base UI 注意事项
 
 Dialog 内使用 `defaultValue` 的表单，需要：
+
 1. 在 `<form>` 上添加 `key={editingId ?? "new"}` — 切换创建/编辑模式时强制重新挂载
 2. 提交后重置 `editingId` 为 `null` — 防止 `revalidatePath` 刷新数据后 `defaultValue` 变化触发 `useControlled` 警告
 
@@ -124,3 +127,9 @@ docker compose up -d db             # 仅启动数据库（开发环境）
 docker compose up -d --build        # 构建并启动完整应用（自动 migrate + seed）
 # 生产环境包含 Nginx Proxy Manager，管理面板：http://<IP>:81
 ```
+
+## 个人偏好
+
+- 使用英文编写代码和注释
+- 使用中文编写文档(如设计文档、计划文档、CLAUDE.md、README.md等)
+- 使用中文进行对话
