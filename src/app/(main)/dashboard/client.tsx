@@ -36,8 +36,8 @@ type PersonalData = {
   annualUsed: number;
   overtimeTotal: number;
   workYearName: string;
-  workYearStart: string;
-  workYearEnd: string;
+  totalDays: number;
+  remainingDays: number;
   recentActivity: ActivityItem[];
 };
 
@@ -66,11 +66,7 @@ export function DashboardClient({
   showDepartmentSection: boolean;
 }) {
   const router = useRouter();
-  const today = new Date();
-  const endDate = new Date(personalData.workYearEnd);
-  const startDate = new Date(personalData.workYearStart);
-  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  const remainingDays = Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+  const { totalDays, remainingDays } = personalData;
   const progress = totalDays > 0 ? Math.min(100, Math.max(0, ((totalDays - remainingDays) / totalDays) * 100)) : 0;
 
   return (

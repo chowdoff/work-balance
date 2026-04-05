@@ -95,6 +95,13 @@ export default async function DashboardPage({
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 5);
 
+  // Compute countdown on server to avoid hydration mismatch
+  const today = new Date();
+  const wyStartDate = currentWorkYear.startDate;
+  const wyEndDate = currentWorkYear.endDate;
+  const totalDays = Math.ceil((wyEndDate.getTime() - wyStartDate.getTime()) / (1000 * 60 * 60 * 24));
+  const remainingDays = Math.max(0, Math.ceil((wyEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+
   const personalData = {
     compensatoryRemaining: Number(compensatory?.remaining ?? 0),
     compensatoryTotal: Number(compensatory?.total ?? 0),
@@ -104,8 +111,8 @@ export default async function DashboardPage({
     annualUsed: Number(annual?.used ?? 0),
     overtimeTotal: Number(overtimeAgg._sum.days ?? 0),
     workYearName: currentWorkYear.name,
-    workYearStart: currentWorkYear.startDate.toISOString().slice(0, 10),
-    workYearEnd: currentWorkYear.endDate.toISOString().slice(0, 10),
+    totalDays,
+    remainingDays,
     recentActivity,
   };
 
