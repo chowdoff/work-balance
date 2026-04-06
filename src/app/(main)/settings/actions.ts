@@ -35,3 +35,25 @@ export async function changePassword(formData: FormData) {
   revalidatePath("/settings");
   return { success: true };
 }
+
+export async function changeName(formData: FormData) {
+  const user = await getCurrentUser();
+
+  const name = (formData.get("name") as string)?.trim();
+
+  if (!name) {
+    throw new Error("姓名不能为空");
+  }
+
+  if (name.length > 50) {
+    throw new Error("姓名不能超过50个字符");
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { name },
+  });
+
+  revalidatePath("/settings");
+  return { success: true };
+}
