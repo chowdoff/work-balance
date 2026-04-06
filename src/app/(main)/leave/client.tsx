@@ -58,9 +58,15 @@ type Props = {
   totalCount: number;
 };
 
-const LEAVE_TYPE_LABELS: Record<string, string> = {
-  COMPENSATORY: "调休",
-  ANNUAL: "年假",
+const LEAVE_TYPE_CONFIG: Record<string, { label: string; className: string }> = {
+  COMPENSATORY: {
+    label: "调休",
+    className: "border-green-200 bg-green-50 text-green-700",
+  },
+  ANNUAL: {
+    label: "年假",
+    className: "border-blue-200 bg-blue-50 text-blue-700",
+  },
 };
 
 function getPaginationPages(current: number, total: number): (number | "...")[] {
@@ -341,8 +347,8 @@ export function LeaveClient({
                 <TableCell className="font-medium">{record.user.name}</TableCell>
                 <TableCell>{record.user.department?.name ?? "-"}</TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                    {LEAVE_TYPE_LABELS[record.type] ?? record.type}
+                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${LEAVE_TYPE_CONFIG[record.type]?.className ?? ""}`}>
+                    {LEAVE_TYPE_CONFIG[record.type]?.label ?? record.type}
                   </span>
                 </TableCell>
                 <TableCell>{record.date.slice(0, 10)}</TableCell>
