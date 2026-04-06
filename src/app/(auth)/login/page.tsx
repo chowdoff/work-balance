@@ -38,7 +38,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">考勤系统</CardTitle>
+          <div className="flex justify-center mb-2">
+            <img src="/logo.png" alt="Work Balance" className="h-16 w-16" />
+          </div>
+          <CardTitle className="text-center text-2xl">Work Balance</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

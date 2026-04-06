@@ -87,7 +87,7 @@ export function Navbar({
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="Work Balance" className="h-7 w-7" />
+            <img src="/logo.png" alt="Work Balance" className="h-7 w-7" />
             <span className="text-lg font-bold">Work Balance</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
