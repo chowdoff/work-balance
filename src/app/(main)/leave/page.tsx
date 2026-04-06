@@ -3,15 +3,18 @@ import { getCurrentUser, getUserRole, getManagedDepartmentIds } from "@/lib/auth
 import { getAccessibleDepartmentTree, getDepartmentPathMap } from "@/lib/department-tree";
 import { LeaveClient } from "./client";
 
+const PAGE_SIZE = 20;
+
 export default async function LeavePage({
   searchParams,
 }: {
-  searchParams: Promise<{ departmentId?: string; workYearId?: string }>;
+  searchParams: Promise<{ departmentId?: string; workYearId?: string; userId?: string; page?: string }>;
 }) {
   const user = await getCurrentUser();
   const role = await getUserRole(user.id);
 
   const params = await searchParams;
+  const currentPage = Math.max(1, Number(params.page) || 1);
   const workYears = await prisma.workYear.findMany({ orderBy: { startDate: "desc" } });
   const currentWorkYear = workYears.find((w) => w.isCurrent);
   const selectedWorkYearId = params.workYearId || currentWorkYear?.id;
@@ -51,18 +54,32 @@ export default async function LeavePage({
 
   const pathMap = await getDepartmentPathMap();
 
-  const records = await prisma.leaveRecord.findMany({
-    where: {
-      workYearId: selectedWorkYearId,
-      userId: { in: filteredUserIds },
-    },
-    include: {
-      user: {
-        select: { name: true, departmentId: true, department: { select: { name: true } } },
+  // Apply userId filter if specified
+  const recordUserIds = params.userId && filteredUserIds.includes(params.userId)
+    ? [params.userId]
+    : filteredUserIds;
+
+  const recordWhere = {
+    workYearId: selectedWorkYearId,
+    userId: { in: recordUserIds },
+  };
+
+  const [records, totalCount] = await Promise.all([
+    prisma.leaveRecord.findMany({
+      where: recordWhere,
+      include: {
+        user: {
+          select: { name: true, departmentId: true, department: { select: { name: true } } },
+        },
       },
-    },
-    orderBy: { date: "desc" },
-  });
+      orderBy: { date: "desc" },
+      skip: (currentPage - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.leaveRecord.count({ where: recordWhere }),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   for (const r of records) {
     if (r.user.department && r.user.departmentId) {
@@ -95,6 +112,10 @@ export default async function LeavePage({
         endDate: w.endDate.toISOString().slice(0, 10),
       }))}
       selectedDepartmentId={params.departmentId ?? ""}
+      selectedUserId={params.userId ?? ""}
+      page={currentPage}
+      totalPages={totalPages}
+      totalCount={totalCount}
     />
   );
 }

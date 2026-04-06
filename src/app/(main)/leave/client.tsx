@@ -52,12 +52,30 @@ type Props = {
   tree: DepartmentNode[];
   workYears: WorkYear[];
   selectedDepartmentId: string;
+  selectedUserId: string;
+  page: number;
+  totalPages: number;
+  totalCount: number;
 };
 
 const LEAVE_TYPE_LABELS: Record<string, string> = {
   COMPENSATORY: "调休",
   ANNUAL: "年假",
 };
+
+function getPaginationPages(current: number, total: number): (number | "...")[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages: (number | "...")[] = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  if (start > 2) pages.push("...");
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (end < total - 1) pages.push("...");
+  pages.push(total);
+  return pages;
+}
 
 export function LeaveClient({
   records,
@@ -67,6 +85,10 @@ export function LeaveClient({
   tree,
   workYears,
   selectedDepartmentId,
+  selectedUserId,
+  page,
+  totalPages,
+  totalCount,
 }: Props) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -75,16 +97,33 @@ export function LeaveClient({
 
   const canManage = role !== "employee";
 
-  function updateFilter(key: string, value: string) {
+  function buildUrl(overrides: Record<string, string>) {
+    const state: Record<string, string> = {
+      departmentId: selectedDepartmentId,
+      userId: selectedUserId,
+      workYearId: selectedWorkYearId,
+      page: String(page),
+    };
+    Object.assign(state, overrides);
     const params = new URLSearchParams();
-    if (key === "departmentId") {
-      if (value) params.set("departmentId", value);
-      params.set("workYearId", selectedWorkYearId);
-    } else {
-      if (selectedDepartmentId) params.set("departmentId", selectedDepartmentId);
-      if (value) params.set("workYearId", value);
+    for (const [k, v] of Object.entries(state)) {
+      if (v) params.set(k, v);
     }
-    router.push(`/leave?${params.toString()}`);
+    return `/leave?${params.toString()}`;
+  }
+
+  function updateFilter(key: string, value: string) {
+    if (key === "departmentId") {
+      router.push(buildUrl({ departmentId: value, userId: "", page: "" }));
+    } else if (key === "userId") {
+      router.push(buildUrl({ userId: value, page: "" }));
+    } else if (key === "workYearId") {
+      router.push(buildUrl({ workYearId: value, page: "" }));
+    }
+  }
+
+  function goToPage(p: number) {
+    router.push(buildUrl({ page: String(p) }));
   }
 
   function openCreate() {
@@ -244,6 +283,20 @@ export function LeaveClient({
           </div>
           <div className="w-48">
             <select
+              value={selectedUserId}
+              onChange={(e) => updateFilter("userId", e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            >
+              <option value="">全部员工</option>
+              {manageableUsers.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="w-48">
+            <select
               value={selectedWorkYearId}
               onChange={(e) => updateFilter("workYearId", e.target.value)}
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
@@ -322,6 +375,46 @@ export function LeaveClient({
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-sm text-muted-foreground">共 {totalCount} 条记录</p>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(page - 1)}
+              disabled={page <= 1}
+            >
+              上一页
+            </Button>
+            {getPaginationPages(page, totalPages).map((p, i) =>
+              p === "..." ? (
+                <span key={`ellipsis-${i}`} className="px-2 text-sm text-muted-foreground">...</span>
+              ) : (
+                <Button
+                  key={p}
+                  variant={p === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => goToPage(p as number)}
+                  className="min-w-[36px]"
+                >
+                  {p}
+                </Button>
+              )
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(page + 1)}
+              disabled={page >= totalPages}
+            >
+              下一页
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
