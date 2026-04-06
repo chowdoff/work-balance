@@ -6,7 +6,16 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { SettingsIcon, LogOutIcon } from "lucide-react";
 import type { UserRole } from "@/lib/auth-utils";
 
 type NavItem = {
@@ -22,7 +31,6 @@ const navItems: NavItem[] = [
   { label: "统计报表", href: "/statistics", roles: ["admin", "manager"] },
   { label: "组织管理", href: "/organization", roles: ["admin"] },
   { label: "工作年度", href: "/work-year", roles: ["admin"] },
-  { label: "设置", href: "/settings", roles: ["admin", "manager", "employee"] },
 ];
 
 function NavLinks({
@@ -60,14 +68,18 @@ function NavLinks({
 
 export function Navbar({
   userName,
+  userEmail,
   role,
 }: {
   userName: string;
+  userEmail: string;
   role: UserRole;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const visibleItems = navItems.filter((item) => item.roles.includes(role));
+
+  const initials = userName.charAt(0).toUpperCase();
 
   return (
     <header className="border-b bg-white">
@@ -82,19 +94,39 @@ export function Navbar({
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <span className="hidden sm:inline text-sm text-muted-foreground">
-            {userName}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={async () => {
-              await signOut({ redirect: false });
-              window.location.href = "/login";
-            }}
-          >
-            退出
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 text-sm font-medium text-white hover:bg-indigo-600 focus:outline-none" />
+              }
+            >
+              {initials}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={8} className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{userEmail}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem render={<Link href="/settings" />}>
+                <SettingsIcon />
+                个人设置
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={async () => {
+                  await signOut({ redirect: false });
+                  window.location.href = "/login";
+                }}
+              >
+                <LogOutIcon />
+                退出登录
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               className="md:hidden"
