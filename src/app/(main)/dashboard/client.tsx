@@ -155,8 +155,8 @@ export function DashboardClient({
                       item.type === "OVERTIME"
                         ? "bg-orange-100 text-orange-700"
                         : item.type === "COMPENSATORY"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-green-100 text-green-700"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-blue-100 text-blue-700"
                     }`}
                   >
                     {item.type === "OVERTIME" ? "加班" : item.type === "COMPENSATORY" ? "调休" : "年假"}
@@ -301,8 +301,8 @@ export function DashboardClient({
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="compensatory" name="调休余额" fill="#3b82f6" />
-                        <Bar dataKey="annual" name="年假余额" fill="#10b981" />
+                        <Bar dataKey="compensatory" name="调休余额" fill="#10b981" />
+                        <Bar dataKey="annual" name="年假余额" fill="#3b82f6" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
