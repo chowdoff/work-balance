@@ -301,8 +301,8 @@ export function DashboardClient({
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="compensatory" name="调休余额" fill="#10b981" />
                         <Bar dataKey="annual" name="年假余额" fill="#3b82f6" />
+                        <Bar dataKey="compensatory" name="调休余额" fill="#10b981" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
