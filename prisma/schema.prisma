@@ -21,6 +21,8 @@ model User {
   overtimeRecords   OvertimeRecord[]
   leaveRecords      LeaveRecord[]
   leaveBalances     LeaveBalance[]
+  appliedRequests    ApprovalRequest[] @relation("Applicant")
+  approvedRequests   ApprovalRequest[] @relation("Approver")
 }
 
 model Department {
@@ -49,6 +51,7 @@ model WorkYear {
   overtimeRecords OvertimeRecord[]
   leaveRecords    LeaveRecord[]
   leaveBalances   LeaveBalance[]
+  approvalRequests   ApprovalRequest[]
 }
 
 enum LeaveType {
@@ -68,6 +71,7 @@ model OvertimeRecord {
 
   user     User     @relation(fields: [userId], references: [id])
   workYear WorkYear @relation(fields: [workYearId], references: [id])
+  approvalRequest    ApprovalRequest?
 }
 
 model LeaveRecord {
@@ -83,6 +87,7 @@ model LeaveRecord {
 
   user     User     @relation(fields: [userId], references: [id])
   workYear WorkYear @relation(fields: [workYearId], references: [id])
+  approvalRequest    ApprovalRequest?
 }
 
 model LeaveBalance {
@@ -106,4 +111,44 @@ model SystemConfig {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+enum ApprovalType {
+  OVERTIME
+  LEAVE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+model ApprovalRequest {
+  id           String         @id @default(cuid())
+  type         ApprovalType
+  status       ApprovalStatus @default(PENDING)
+
+  applicantId  String
+  applicant    User           @relation("Applicant", fields: [applicantId], references: [id])
+
+  approverId   String?
+  approver     User?          @relation("Approver", fields: [approverId], references: [id])
+
+  workYearId   String
+  workYear     WorkYear       @relation(fields: [workYearId], references: [id])
+  date         DateTime
+  days         Decimal        @db.Decimal(3, 1)
+  leaveType    LeaveType?
+  remark       String?
+  rejectReason String?
+
+  overtimeRecordId String?          @unique
+  overtimeRecord   OvertimeRecord?  @relation(fields: [overtimeRecordId], references: [id])
+  leaveRecordId    String?          @unique
+  leaveRecord      LeaveRecord?     @relation(fields: [leaveRecordId], references: [id])
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
