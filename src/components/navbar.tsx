@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
   { label: "仪表盘", href: "/dashboard", roles: ["admin", "manager", "employee"] },
   { label: "加班记录", href: "/overtime", roles: ["admin", "manager", "employee"] },
   { label: "请假记录", href: "/leave", roles: ["admin", "manager", "employee"] },
+  { label: "审批管理", href: "/approval", roles: ["admin", "manager", "employee"] },
   { label: "统计报表", href: "/statistics", roles: ["admin", "manager"] },
   { label: "组织管理", href: "/organization", roles: ["admin"] },
   { label: "工作年度", href: "/work-year", roles: ["admin"] },
@@ -39,11 +40,13 @@ function NavLinks({
   pathname,
   mobile,
   onClose,
+  pendingApprovalCount,
 }: {
   items: NavItem[];
   pathname: string;
   mobile?: boolean;
   onClose?: () => void;
+  pendingApprovalCount: number;
 }) {
   return (
     <>
@@ -61,6 +64,11 @@ function NavLinks({
           )}
         >
           {item.label}
+          {item.href === "/approval" && pendingApprovalCount > 0 && (
+            <span className="ml-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+              {pendingApprovalCount}
+            </span>
+          )}
         </Link>
       ))}
     </>
@@ -71,10 +79,12 @@ export function Navbar({
   userName,
   userEmail,
   role,
+  pendingApprovalCount = 0,
 }: {
   userName: string;
   userEmail: string;
   role: UserRole;
+  pendingApprovalCount?: number;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -91,7 +101,7 @@ export function Navbar({
             <span className="text-lg font-bold">Work Balance</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
-            <NavLinks items={visibleItems} pathname={pathname} />
+            <NavLinks items={visibleItems} pathname={pathname} pendingApprovalCount={pendingApprovalCount} />
           </nav>
         </div>
         <div className="flex items-center gap-4">
@@ -140,7 +150,7 @@ export function Navbar({
             <SheetContent side="top" className="pt-10">
               <SheetTitle className="sr-only">导航菜单</SheetTitle>
               <nav className="flex flex-col gap-1">
-                <NavLinks items={visibleItems} pathname={pathname} mobile onClose={() => setOpen(false)} />
+                <NavLinks items={visibleItems} pathname={pathname} mobile onClose={() => setOpen(false)} pendingApprovalCount={pendingApprovalCount} />
               </nav>
             </SheetContent>
           </Sheet>
