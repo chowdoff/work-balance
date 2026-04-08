@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { LeaveType, Prisma } from "@prisma/client";
+import { ApprovalStatus, ApprovalType, LeaveType, Prisma } from "@prisma/client";
 
 export async function recalculateCompensatoryBalance(
   userId: string,
@@ -15,8 +15,22 @@ export async function recalculateCompensatoryBalance(
     _sum: { days: true },
   });
 
+  // Include pending leave requests in used calculation
+  const pendingAgg = await prisma.approvalRequest.aggregate({
+    where: {
+      applicantId: userId,
+      workYearId,
+      type: ApprovalType.LEAVE,
+      leaveType: LeaveType.COMPENSATORY,
+      status: ApprovalStatus.PENDING,
+    },
+    _sum: { days: true },
+  });
+
   const total = overtimeAgg._sum.days ?? new Prisma.Decimal(0);
-  const used = leaveAgg._sum.days ?? new Prisma.Decimal(0);
+  const effectiveUsed = leaveAgg._sum.days ?? new Prisma.Decimal(0);
+  const pendingUsed = pendingAgg._sum.days ?? new Prisma.Decimal(0);
+  const used = effectiveUsed.add(pendingUsed);
   const remaining = total.sub(used);
 
   await prisma.leaveBalance.upsert({
@@ -52,7 +66,21 @@ export async function recalculateAnnualBalance(
     _sum: { days: true },
   });
 
-  const used = leaveAgg._sum.days ?? new Prisma.Decimal(0);
+  // Include pending leave requests in used calculation
+  const pendingAgg = await prisma.approvalRequest.aggregate({
+    where: {
+      applicantId: userId,
+      workYearId,
+      type: ApprovalType.LEAVE,
+      leaveType: LeaveType.ANNUAL,
+      status: ApprovalStatus.PENDING,
+    },
+    _sum: { days: true },
+  });
+
+  const effectiveUsed = leaveAgg._sum.days ?? new Prisma.Decimal(0);
+  const pendingUsed = pendingAgg._sum.days ?? new Prisma.Decimal(0);
+  const used = effectiveUsed.add(pendingUsed);
   const remaining = total.sub(used);
 
   await prisma.leaveBalance.upsert({
