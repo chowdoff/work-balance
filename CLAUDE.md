@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-员工加班与调休管理系统，支持多级部门管理、工作年度管理、加班/请假记录与余额自动结算。
+员工加班与调休管理系统，支持多级部门管理、工作年度管理、加班/请假记录与余额自动结算、审批流程管理。
 
 ## 技术栈
 
@@ -24,6 +24,7 @@ src/
 │   │   ├── leave/             # 请假管理
 │   │   ├── statistics/        # 统计报表
 │   │   ├── organization/      # 组织管理（部门+员工）
+│   │   ├── approval/          # 审批管理
 │   │   ├── work-year/         # 工作年度管理
 │   │   └── settings/          # 个人设置
 │   └── api/auth/              # NextAuth API 路由
@@ -37,6 +38,7 @@ src/
 │   ├── auth.config.ts         # 认证路由配置（供 proxy 使用）
 │   ├── auth-utils.ts          # 角色权限工具
 │   ├── prisma.ts              # Prisma 客户端单例
+│   ├── approval.ts            # 审批人解析逻辑
 │   ├── balance.ts             # 假期余额计算逻辑
 │   ├── department-tree.ts     # 部门树构建工具
 │   └── utils.ts               # 通用工具（cn 等）
@@ -81,9 +83,9 @@ src/
 
 三种角色：`admin`（管理员）、`manager`（部门经理）、`employee`（普通员工）
 
-- admin: 可访问所有功能
-- manager: 可查看部门统计
-- employee: 仅管理自己的记录
+- admin: 可访问所有功能，可审批所有申请，可查看所有审批记录
+- manager: 可查看部门统计，可审批直属部门员工的申请，可查看部门及子部门的审批记录
+- employee: 仅管理自己的记录，可发起加班/请假申请，可撤回待审批的申请
 
 ### 已知的 Base UI 注意事项
 
