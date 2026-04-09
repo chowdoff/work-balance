@@ -4,6 +4,7 @@ import {
   getUserRole,
   getManagedDepartmentIds,
 } from "@/lib/auth-utils";
+import { getDepartmentPathMap } from "@/lib/department-tree";
 import { ApprovalStatus } from "@prisma/client";
 import { ApprovalClient } from "./client";
 
@@ -48,32 +49,40 @@ export default async function ApprovalPage({
   let processedRequests: typeof myRequests = [];
 
   if (role !== "employee") {
-    let applicantFilter: { in: string[] } | undefined;
+    // Pending: only show requests from direct department members (not sub-departments)
+    // For manager: members of the departments they directly manage
+    // For admin: all requests except their own
+    let pendingApplicantFilter: { in: string[] } | undefined;
 
     if (role === "manager") {
-      const deptIds = await getManagedDepartmentIds(user.id);
-      const subordinates = await prisma.user.findMany({
-        where: { departmentId: { in: deptIds } },
+      // Only direct departments managed by this user (not sub-departments)
+      const directDepts = await prisma.department.findMany({
+        where: { managerId: user.id },
         select: { id: true },
       });
-      const subordinateIds = subordinates
+      const directDeptIds = directDepts.map((d) => d.id);
+      const directMembers = await prisma.user.findMany({
+        where: { departmentId: { in: directDeptIds } },
+        select: { id: true },
+      });
+      const directMemberIds = directMembers
         .map((s) => s.id)
         .filter((id) => id !== user.id);
-      applicantFilter = { in: subordinateIds };
+      pendingApplicantFilter = { in: directMemberIds };
     }
 
-    const approverWhere = applicantFilter
-      ? { applicantId: applicantFilter }
+    const pendingWhere = pendingApplicantFilter
+      ? { applicantId: pendingApplicantFilter }
       : { applicantId: { not: user.id } };
 
     pendingRequests = await prisma.approvalRequest.findMany({
       where: {
-        ...approverWhere,
+        ...pendingWhere,
         status: ApprovalStatus.PENDING,
       },
       include: {
         applicant: {
-          select: { name: true, department: { select: { name: true } } },
+          select: { name: true, departmentId: true, department: { select: { name: true } } },
         },
         workYear: { select: { name: true } },
         approver: { select: { name: true } },
@@ -81,14 +90,34 @@ export default async function ApprovalPage({
       orderBy: { createdAt: "desc" },
     });
 
-    processedRequests = await prisma.approvalRequest.findMany({
-      where: {
-        approverId: user.id,
+    // History: admin sees all, manager sees department + sub-departments
+    let historyWhere: Record<string, unknown>;
+
+    if (role === "admin") {
+      historyWhere = {
         status: { in: [ApprovalStatus.APPROVED, ApprovalStatus.REJECTED] },
-      },
+      };
+    } else {
+      // Manager: see records from their department and sub-departments
+      const deptIds = await getManagedDepartmentIds(user.id);
+      const allMembers = await prisma.user.findMany({
+        where: { departmentId: { in: deptIds } },
+        select: { id: true },
+      });
+      const allMemberIds = allMembers
+        .map((s) => s.id)
+        .filter((id) => id !== user.id);
+      historyWhere = {
+        applicantId: { in: allMemberIds },
+        status: { in: [ApprovalStatus.APPROVED, ApprovalStatus.REJECTED] },
+      };
+    }
+
+    processedRequests = await prisma.approvalRequest.findMany({
+      where: historyWhere,
       include: {
         applicant: {
-          select: { name: true, department: { select: { name: true } } },
+          select: { name: true, departmentId: true, department: { select: { name: true } } },
         },
         workYear: { select: { name: true } },
         approver: { select: { name: true } },
@@ -96,6 +125,23 @@ export default async function ApprovalPage({
       orderBy: { updatedAt: "desc" },
     });
   }
+
+  // Build department path map for full path display
+  const pathMap = await getDepartmentPathMap();
+
+  // Replace department names with full paths
+  const replaceDeptName = (records: typeof pendingRequests) => {
+    for (const r of records) {
+      const applicant = r as unknown as { applicant?: { departmentId?: string; department?: { name: string } | null } };
+      if (applicant.applicant?.department && applicant.applicant?.departmentId) {
+        applicant.applicant.department.name =
+          pathMap.get(applicant.applicant.departmentId) ?? applicant.applicant.department.name;
+      }
+    }
+  };
+
+  replaceDeptName(pendingRequests);
+  replaceDeptName(processedRequests);
 
   return (
     <ApprovalClient

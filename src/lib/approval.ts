@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 
 /**
- * Find the approver for a given user by walking up the department tree.
- * Returns the managerId of the user's department, or the first ancestor
- * department that has a manager. Returns null if no manager is found
- * (only admin can approve in that case).
+ * Find the direct approver for a given user.
+ * Returns the managerId of the user's own department.
+ * If the user's department has no manager, walks up the parent chain
+ * to find the nearest ancestor department with a manager.
+ * Returns empty array if no manager is found (only admin can approve).
  */
 export async function findApproverIds(userId: string): Promise<string[]> {
   const user = await prisma.user.findUnique({
@@ -14,22 +15,35 @@ export async function findApproverIds(userId: string): Promise<string[]> {
 
   if (!user?.departmentId) return [];
 
-  // Walk up the department chain to find a manager
-  let currentDeptId: string | null = user.departmentId;
+  // First check the user's own department
+  const dept = await prisma.department.findUnique({
+    where: { id: user.departmentId },
+    select: { managerId: true, parentId: true },
+  });
+
+  if (!dept) return [];
+
+  // If the user's department has a manager, that's the approver
+  if (dept.managerId) {
+    return [dept.managerId];
+  }
+
+  // Only walk up if the user's own department has no manager
+  let currentDeptId: string | null = dept.parentId;
 
   while (currentDeptId) {
-    const dept = await prisma.department.findUnique({
+    const parentDept = await prisma.department.findUnique({
       where: { id: currentDeptId },
       select: { managerId: true, parentId: true },
     });
 
-    if (!dept) break;
+    if (!parentDept) break;
 
-    if (dept.managerId) {
-      return [dept.managerId];
+    if (parentDept.managerId) {
+      return [parentDept.managerId];
     }
 
-    currentDeptId = dept.parentId;
+    currentDeptId = parentDept.parentId;
   }
 
   return [];

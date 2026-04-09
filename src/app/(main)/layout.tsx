@@ -22,23 +22,28 @@ export default async function MainLayout({
         },
       });
     } else {
-      // manager: count pending requests from subordinates
-      const { getManagedDepartmentIds } = await import("@/lib/auth-utils");
-      const deptIds = await getManagedDepartmentIds(user.id);
-      const subordinates = await prisma.user.findMany({
-        where: { departmentId: { in: deptIds } },
+      // manager: count pending requests from direct department members only
+      const directDepts = await prisma.department.findMany({
+        where: { managerId: user.id },
         select: { id: true },
       });
-      const subordinateIds = subordinates
-        .map((s) => s.id)
-        .filter((id) => id !== user.id);
-      if (subordinateIds.length > 0) {
-        pendingApprovalCount = await prisma.approvalRequest.count({
-          where: {
-            status: ApprovalStatus.PENDING,
-            applicantId: { in: subordinateIds },
-          },
+      const directDeptIds = directDepts.map((d) => d.id);
+      if (directDeptIds.length > 0) {
+        const directMembers = await prisma.user.findMany({
+          where: { departmentId: { in: directDeptIds } },
+          select: { id: true },
         });
+        const directMemberIds = directMembers
+          .map((s) => s.id)
+          .filter((id) => id !== user.id);
+        if (directMemberIds.length > 0) {
+          pendingApprovalCount = await prisma.approvalRequest.count({
+            where: {
+              status: ApprovalStatus.PENDING,
+              applicantId: { in: directMemberIds },
+            },
+          });
+        }
       }
     }
   }
