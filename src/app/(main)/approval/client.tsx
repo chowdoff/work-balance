@@ -471,6 +471,7 @@ export function ApprovalClient({
                     <TableHead className="text-right">天数</TableHead>
                     <TableHead>假期类型</TableHead>
                     <TableHead>状态</TableHead>
+                    <TableHead>审批人</TableHead>
                     <TableHead>处理时间</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -478,7 +479,7 @@ export function ApprovalClient({
                   {processedRequests.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={8}
+                        colSpan={9}
                         className="text-center text-muted-foreground py-8"
                       >
                         暂无审批记录
@@ -506,6 +507,7 @@ export function ApprovalClient({
                           {STATUS_CONFIG[req.status]?.label}
                         </Badge>
                       </TableCell>
+                      <TableCell>{req.approver?.name ?? "-"}</TableCell>
                       <TableCell>
                         {req.updatedAt.slice(0, 10)}
                       </TableCell>
