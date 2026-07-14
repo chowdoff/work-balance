@@ -4,8 +4,8 @@ set -e
 echo "=== Pulling latest code..."
 git pull
 
-echo "=== Rebuilding and restarting app..."
-docker compose up -d --build app
+echo "=== Rebuilding and restarting all services..."
+docker compose up -d --build
 
 echo "=== Done! Checking status..."
 docker compose ps
